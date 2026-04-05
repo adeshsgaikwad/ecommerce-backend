@@ -1,0 +1,77 @@
+spring:
+  application:
+    name: ecommerce-backend
+
+  # ── PostgreSQL ──────────────────────────────────────────────────────────────
+  datasource:
+    url: jdbc:postgresql://localhost:5432/ecommerce_db
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      # create-drop in dev: recreates tables on every restart
+      # validate in prod: only validates schema, never modifies
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        '[format_sql]': true
+
+  # ── Redis ───────────────────────────────────────────────────────────────────
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+
+  # ── Kafka ───────────────────────────────────────────────────────────────────
+  kafka:
+    bootstrap-servers: ${KAFKA_SERVERS:localhost:9092}
+    consumer:
+      group-id: ecommerce-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        '[spring.json.trusted.packages]': "com.ecommerce.ecommerce_backend.kafka.event"
+
+  # ── Email (SMTP) ─────────────────────────────────────────────────────────────
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+# ── JWT ────────────────────────────────────────────────────────────────────────
+app:
+  jwt:
+    secret: ${JWT_SECRET:mySecretKeyThatIsAtLeast64CharactersLongForHS512AlgorithmSecurity!!}
+    expiration-ms: ${JWT_EXPIRATION_MS:3600000}   # 1 hour
+
+# ── Server ─────────────────────────────────────────────────────────────────────
+server:
+  port: 8080
+
+# ── Logging ────────────────────────────────────────────────────────────────────
+logging:
+  level:
+    '[com.ecommerce]': DEBUG
+    '[org.springframework.security]': INFO
+    '[org.hibernate.SQL]': DEBUG
+
+# ── Springdoc / Swagger ────────────────────────────────────────────────────────
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+  api-docs:
+    path: /v3/api-docs
+    enabled: true
